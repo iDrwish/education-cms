@@ -27,11 +27,11 @@ class Course(models.Model):
         models {Django} -- Django models
     """
     owner = models.ForeignKey(User, related_name='courses_created')
-    subject = models.ForeignKey(Subject, related_names='courses')
+    subject = models.ForeignKey(Subject, related_name='courses')
     title = models.CharField(max_length=200)
-    slug = models.SlugField(max_lenght=200, unique=True)
+    slug = models.SlugField(max_length=200, unique=True)
     overview = models.TextField()
-    created = models.DateTimeField(auto_new_add=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ('created',)
@@ -46,7 +46,7 @@ class Module(models.Model):
         models {[type]} -- [description]
     """
     course = models.ForeignKey(Course, related_name='Modules')
-    title = models.CharField(max_lenght=200)
+    title = models.CharField(max_length=200)
     description = models.TextField()
 
     class Meta:
@@ -54,5 +54,3 @@ class Module(models.Model):
 
     def __str__(self):
         return self.title
-
-    

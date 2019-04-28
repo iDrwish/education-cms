@@ -60,18 +60,26 @@ class Module(models.Model):
 
 class Content(models.Model):
     """
-    A generic Content model that links to Django ContentType and 
+    A generic Content model that links to Django ContentType and
     custom built module type.
     Arguments:
         models {Django} -- Django model builder
     """
     module = models.ForeignKey(Module, related_names='contents')
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, limit_choices_to={'model__in': ('text', 'video', 'image', 'file')})
     object_id = models.PositiveIntegerField()
     item = GenericForeignKey('content_type', 'object_id')
 
 
 class ItemBase(models.Model):
+    """Abstract Class that will broadcast in all content classes
+
+    Arguments:
+        models {Django} -- Django models
+    Returns:
+        AbstractClass -- Returns an abstract class with no db table,
+        but used in heritance for all the other Content Classes
+    """
     owner = models.ForeignKey(User, related_name="%(class)s_related")
     title = models.CharField(max_length=200)
     created = models.DateTimeField(auto_now_add=True)

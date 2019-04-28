@@ -50,7 +50,7 @@ class OrderField(models.PositiveIntegerField):
                     query = {
                         field: getattr(model_instance, field)
                         for field in self.for_fields}
-                    qs = qs.filter(*query)
+                    qs = qs.filter(**query)
                 # get the last item
                 last_item = qs.latest(self.attname)
                 value = last_item.order + 1

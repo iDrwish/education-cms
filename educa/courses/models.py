@@ -65,8 +65,11 @@ class Content(models.Model):
     Arguments:
         models {Django} -- Django model builder
     """
-    module = models.ForeignKey(Module, related_names='contents')
-    content_type = models.ForeignKey(ContentType, limit_choices_to={'model__in': ('text', 'video', 'image', 'file')})
+    module = models.ForeignKey(Module, related_name='contents')
+    content_type = models.ForeignKey(
+        ContentType,
+        limit_choices_to={
+            'model__in': ('text', 'video', 'image', 'file')})
     object_id = models.PositiveIntegerField()
     item = GenericForeignKey('content_type', 'object_id')
 

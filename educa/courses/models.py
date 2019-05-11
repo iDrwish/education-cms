@@ -48,7 +48,7 @@ class Module(models.Model):
     Arguments:
         models {[type]} -- [description]
     """
-    course = models.ForeignKey(Course, related_name='Modules')
+    course = models.ForeignKey(Course, related_name='modules')
     title = models.CharField(max_length=200)
     description = models.TextField()
     order = OrderField(blank=True, for_fields=['course'])

@@ -25,6 +25,14 @@ urlpatterns = [
         views.ContentDeleteView.as_view(),
         name='module_content_delete'
         ),
-    url(r'module/(?P<module_id>\d+)/$', views.ModuleContentListView.as_view(),
+    url(r'^module/(?P<module_id>\d+)/$', views.ModuleContentListView.as_view(),
         name='module_content_list'),
+    url(
+        r'^module/order/$',
+        views.ModuleOrderView.as_view(),
+        name='module_order'),
+    url(
+        r'^content/order/$',
+        views.ContentOrderView.as_view(),
+        name='content_order'),
 ]

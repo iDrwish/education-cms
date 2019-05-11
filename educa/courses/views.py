@@ -4,20 +4,12 @@ from django.apps import apps
 from django.forms.models import modelform_factory
 from django.views.generic.base import View, TemplateResponseMixin
 from django.views.generic.list import ListView
-from django.views.generic.edit import DeleteView, UpdateView, CreateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
+from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
 from .models import Course, Module, Content
 from .forms import ModuleFormSet
-
-
-class ManageCourseListView(ListView):
-    model = Course
-    template_name = 'courses/manage/course/list.html'
-
-    def get_queryset(self):
-        qs = super(ManageCourseListView, self()).get_queryset()
-        return qs.filter(owner=self.request.user)
 
 
 class OwnerMixin(object):
@@ -50,11 +42,9 @@ class OwnerEditMixin(object):
 
 class OwnerCourseMixin(OwnerMixin, LoginRequiredMixin):
     model = Course
-    fields = ['subject', 'title', 'slug', 'overview']
-    success_url = reverse_lazy('manage_course_list')
 
 
-class OwnerCourseEditMixin(OwnerEditMixin):
+class OwnerCourseEditMixin(OwnerCourseMixin, OwnerEditMixin):
     fields = ['subject', 'title', 'slug', 'overview']
     success_url = reverse_lazy('manage_course_list')
     template_name = 'courses/manage/course/form.html'
@@ -96,10 +86,10 @@ class CourseModuleUpdateView(TemplateResponseMixin, View):
         Formsave in case of a valid formset otherwise error.
     """
     course = None
-    template_name = 'course/manage/module/formset.html'
+    template_name = 'courses/manage/module/formset.html'
 
     def get_formset(self, data=None):
-        return ModuleFormSet(self, data=self.data)
+        return ModuleFormSet(instance=self.course, data=data)
 
     def dispatch(self, request, pk):
         self.course = get_object_or_404(
@@ -209,6 +199,7 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
             obj.owner = request.user
             obj.save()
             if not id:
+                # new content
                 Content.objects.create(
                     module=self.module,
                     item=obj)
@@ -219,10 +210,12 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
 
 
 class ContentDeleteView(View):
+
     def post(self, request, id):
         content = get_object_or_404(
-            Content, id=id, owner=request.user)
+            Content, id=id, module__course__owner=request.user)
         module = content.module
+        content.item.delete()
         content.delete()
         return redirect('module_content_list', module.id)
 
@@ -239,3 +232,21 @@ class ModuleContentListView(TemplateResponseMixin, View):
         return self.render_to_response(
             {'module': module}
         )
+
+
+class ModuleOrderView(
+        CsrfExemptMixin, JsonRequestResponseMixin, View):
+    def post(self, request):
+        for id, order in self.request_json.items():
+            Module.objects.filter(
+                id=id, course__owner=request.user).update(order=order)
+        return self.render_json_response({'saved': 'OK'})
+
+
+class ContentOrderView(
+        CsrfExemptMixin, JsonRequestResponseMixin, View):
+    def post(self, request):
+        for id, order in self.request_json.items():
+            Content.objects.filter(
+                id=id, module__course__owner=request.user).update(order=order)
+        return self.render_json_response({'saved': 'OK'})

@@ -128,11 +128,32 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
     template_name = 'courses/manage/content/form.html'
 
     def get_model(self, model_name):
+        """
+        Generic get_model method to make sure that the model
+        being edited or created is a supported type.
+        BONUS: Extend the supported model types by simply adding it in the
+        .models and in the below list for validation
+
+        Arguments:
+            model_name {str} -- The name of the model being edited or created
+
+        Returns:
+            An instance of the model app else None if the name is invalid
+        """
         if model_name in ['text', 'video', 'image', 'file']:
             return apps.get_model(app_label='courses', model_name=model_name)
         return None
 
     def get_form(self, model, *args, **kwargs):
+        """
+        Create a model form from any model
+
+        Arguments:
+            model {django.models} -- The model used in the form
+
+        Returns:
+            django.form
+        """
         Form = modelform_factory(model, exclude=[
             'owner', 'created', 'updated', 'order'],
             )
@@ -161,6 +182,23 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
             )
 
     def post(self, request, module_id, model_name, id=None):
+        """
+        Validate the submitted form and coutner for:
+        1. New Cotnent being submitted --> id=None
+        2. Already exitent content type
+
+        Arguments:
+            request
+            module_id
+            model_name
+
+        Keyword Arguments:
+            id -- To extent to edit an already exitent
+            Content or a new one. (default: {None})
+
+        Returns:
+            form.save() if valid else form
+        """
         form = self.get_form(
             self.model,
             instance=self.obj,
@@ -178,3 +216,26 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
         return self.render_to_response(
             {'form': form, 'object': self.obj}
             )
+
+
+class ContentDeleteView(View):
+    def post(self, request, id):
+        content = get_object_or_404(
+            Content, id=id, owner=request.user)
+        module = content.module
+        content.delete()
+        return redirect('module_content_list', module.id)
+
+
+class ModuleContentListView(TemplateResponseMixin, View):
+    template_name = 'courses/manage/module/content_list.html'
+
+    def get(self, request, module_id):
+        module = get_object_or_404(
+            Module,
+            id=module_id,
+            course__owner=request.user
+        )
+        return self.render_to_response(
+            {'module': module}
+        )

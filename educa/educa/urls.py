@@ -17,7 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
-from educa.courses.views import CourseListView
+from courses.views import CourseListView
 
 urlpatterns = [
     url(r'^accounts/login/$', auth_views.login, name='login'),

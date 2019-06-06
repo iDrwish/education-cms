@@ -280,7 +280,7 @@ class CourseListView(TemplateResponseMixin, View):
             courses = courses.filter(subject=subject)
 
         return self.render_to_response({
-            'subjects': subject,
+            'subjects': subjects,
             'courses': courses,
             'subject': subject
         })

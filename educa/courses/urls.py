@@ -34,5 +34,5 @@ urlpatterns = [
     url(
         r'^content/order/$',
         views.ContentOrderView.as_view(),
-        name='content_order'),
+        name='content_order')
 ]

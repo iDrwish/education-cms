@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.apps import apps
@@ -5,10 +6,11 @@ from django.forms.models import modelform_factory
 from django.views.generic.base import View, TemplateResponseMixin
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.detail import DetailView
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
-from .models import Course, Module, Content
+from .models import Subject, Course, Module, Content
 from .forms import ModuleFormSet
 
 
@@ -250,3 +252,40 @@ class ContentOrderView(
             Content.objects.filter(
                 id=id, module__course__owner=request.user).update(order=order)
         return self.render_json_response({'saved': 'OK'})
+
+
+class CourseListView(TemplateResponseMixin, View):
+    """
+    List view of the all the courses on the homepage
+    Arguments:
+        TemplateResponseMixin {django.views.generic.base} -- simple
+        template mixin for rendering a response in a template
+
+        View {django.views.View} -- master class-based base view
+
+    """
+    model = Course
+    template_name = 'courses/course/list.html'
+
+    def get(self, request, subject=None):
+        subjects = Subject.objects.annotate(
+            total_courses=Count('courses')
+        )
+        courses = Course.objects.annotate(
+            total_modules=Count('modules')
+        )
+
+        if subject:
+            subject = get_object_or_404(Subject, slug=subject)
+            courses = courses.filter(subject=subject)
+
+        return self.render_to_response({
+            'subjects': subject,
+            'courses': courses,
+            'subject': subject
+        })
+
+
+class CourseDetailView(DetailView):
+    model = Course
+    template_name = 'courses/course/detail.html'

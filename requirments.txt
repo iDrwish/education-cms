@@ -2,3 +2,4 @@ Django==1.8.6
 Pillow==2.9.0
 autopep8
 django-braces==1.8.1
+djangorestframework==3.2.3

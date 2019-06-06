@@ -3,3 +3,6 @@ Pillow==2.9.0
 autopep8
 django-braces==1.8.1
 djangorestframework==3.2.3
+django-embed-video==1.0.0
+python3-memcached==1.51
+git+git://github.com/zenx/django-memcache-status.git

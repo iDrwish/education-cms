@@ -60,9 +60,4 @@ urlpatterns = [
         r'^(?P<slug>[\w-]+)/$',
         views.CourseDetailView.as_view(),
         name='course_detail'),
-    url(
-        r'^api/',
-        include(
-            'courses.api.urls',
-            namespace='api'))
 ]

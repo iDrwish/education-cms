@@ -116,7 +116,6 @@ class CourseModuleUpdateView(TemplateResponseMixin, View):
 
 
 class ContentCreateUpdateView(TemplateResponseMixin, View):
-    
     module = None
     model = None
     obj = None

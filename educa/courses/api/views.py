@@ -3,5 +3,11 @@ from ..models import Subject
 from .serializers import SubjectSerializer
 
 
-class SubjectListView(generator.ListAPIView):
-    pass
+class SubjectListView(generics.ListAPIView):
+    queryset = Subject.objects.all()
+    serializer_class = SubjectSerializer
+
+
+class SubjetDetailView(generics.RetrieveAPIView):
+    queryset = Subject.objects.all()
+    serializer_class = SubjectSerializer

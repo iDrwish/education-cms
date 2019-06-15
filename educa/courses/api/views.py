@@ -8,6 +8,8 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from ..models import Subject, Course
 from .serializers import SubjectSerializer, CourseSerializer
+from .serializers import CourseWithContentSerializer
+from .permissions import IsEnrolled
 
 
 class SubjectListView(generics.ListAPIView):
@@ -36,9 +38,17 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(
         methods=['post'],
-        authentication_class=[BasicAuthentication],
+        authentication_classes=[BasicAuthentication],
         permission_classes=[IsAuthenticated])
     def enroll(self, request, *args, **kwargs):
         course = self.get_object()
         course.students.add(request.user)
         return Response({'enrolled': True})
+
+    @detail_route(
+        methods=['get'],
+        serializer_class=CourseWithContentSerializer,
+        authentication_classes=[BasicAuthentication],
+        permission_classes=[IsAuthenticated, IsEnrolled])
+    def contents(self, requests, *args, **kwargs):
+        return self.retrieve(requests, *args, **kwargs)

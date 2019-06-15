@@ -12,7 +12,7 @@ urlpatterns = [
         views.SubjetDetailView.as_view(),
         name='subject_detail'),
     url(
-        r'^courses/(?P<pk>\d+/enroll/$',
+        r'^courses/(?P<pk>\d+)/enroll/$',
         views.CourseEnrollView.as_view(),
         name='course-enroll'
     )

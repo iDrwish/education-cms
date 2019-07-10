@@ -69,6 +69,8 @@ class StudentCourseDetailView(LoginRequiredMixin, DetailView):
             context['module'] = course.modules.get(
                 id=self.kwargs['module_id']
             )
+        elif not course.modules.all():
+            context['module'] = []
         else:
             context['module'] = course.modules.all()[0]
         return context

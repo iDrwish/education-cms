@@ -7,3 +7,4 @@ django-embed-video==1.0.0
 python3-memcached==1.51
 git+git://github.com/zenx/django-memcache-status.git
 djangorestframework==3.2.3
+uwsgi==2.0.18

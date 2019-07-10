@@ -263,7 +263,6 @@ class CourseListView(TemplateResponseMixin, View):
         template mixin for rendering a response in a template
 
         View {django.views.View} -- master class-based base view
-
     """
     model = Course
     template_name = 'courses/course/list.html'
@@ -302,6 +301,18 @@ class CourseListView(TemplateResponseMixin, View):
 class CourseDetailView(DetailView):
     model = Course
     template_name = 'courses/course/detail.html'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        enrolled_students = (self.object.students.all().values_list(
+                'id',
+                flat=True))
+        if request.user.id in enrolled_students:
+            print(self.object.id)
+            return redirect('student_course_detail', self.object.id)
+        else:
+            context = self.get_context_data(object=self.object)
+            return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
